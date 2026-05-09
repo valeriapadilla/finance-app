@@ -26,134 +26,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.upb.finanzasapp.ui.theme.FinanzasAppTheme
-import org.intellij.lang.annotations.JdkConstants
+import com.upb.finanzasapp.view.home.PantallaPrincipal
+import com.upb.finanzasapp.viewModel.MovimientoViewModel
 
 class MainActivity : ComponentActivity() {
+    private val viewModel = MovimientoViewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
         setContent {
-            FinanzasAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Saludo(
-                        nombre="Android",
-                        modificador = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            PantallaPrincipal(viewModel)
         }
+
     }
 }
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-
-@Composable
-fun GreetingPreview() {
-    Greeting(name="Maria")
-}
-
-@Composable
-@Preview(showBackground = true)
-fun Saludo(
-    nombre: String = "Android",
-    modificador: Modifier = Modifier
-){
-    Column(modifier = modificador.size(100.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-        Text(
-            text = "Hola $nombre",
-            modifier = modificador
-                .background(color = Color.Red)
-            ,
-            fontSize = 10.sp,
-            color = Color.White,
-            textAlign = TextAlign.Center
-        )
-
-        Text(
-            text = "Hola $nombre",
-            modifier = modificador
-                .background(color = Color.Blue)
-            ,
-            fontSize = 10.sp,
-            color = Color.White,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-
-@Composable
-@Preview(showBackground = true)
-fun SaludoFila(
-    nombre: String = "Android",
-    modificador: Modifier = Modifier
-){
-    Row(modifier = modificador.width(300.dp).height(50.dp),
-        horizontalArrangement = Arrangement.spacedBy(100.dp),
-//        verticalAlignment = Alignment.CenterVertically
-        verticalAlignment = Alignment.Bottom
-    ) {
-        Text(
-            text = "Hola $nombre",
-            modifier = modificador
-                .background(color = Color.Red)
-            ,
-            fontSize = 10.sp,
-            color = Color.White,
-            textAlign = TextAlign.Center
-        )
-
-        Text(
-            text = "Hola $nombre",
-            modifier = modificador
-                .background(color = Color.Blue)
-            ,
-            fontSize = 10.sp,
-            color = Color.White,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun SaludoBox(
-    nombre: String = "Android",
-    modificador: Modifier = Modifier
-){
-    Box(
-    ) {
-        Text(
-            text = "Hola $nombre",
-            modifier = modificador.size(100.dp)
-                .background(color = Color.Red)
-            ,
-            fontSize = 10.sp,
-            color = Color.White,
-            textAlign = TextAlign.End
-        )
-
-        Text(
-            text = "Hola $nombre",
-            modifier = modificador
-                .background(color = Color.Blue)
-            ,
-            fontSize = 10.sp,
-            color = Color.White,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-
-

@@ -1,4 +1,5 @@
 package com.upb.finanzasapp.Data
+import com.upb.finanzasapp.model.Cuenta
 import com.upb.finanzasapp.model.Movimiento
 import com.upb.finanzasapp.model.TipoMovimiento
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,20 +16,31 @@ class MovimientoFuenteDatos {
     //val nombreVariable: tipoDato = valor
 
     private val _saldo = MutableStateFlow(0.0)
-
     val saldo: StateFlow<Double> = _saldo.asStateFlow()
+
+    //variables para cuenta
+    private val _cuenta = MutableStateFlow(
+        Cuenta("1","Bancolombia",0.0)
+    )
+    val cuenta: StateFlow<Cuenta> = _cuenta.asStateFlow()
 
     //CRUD
 
     //C - CREAR
     fun agregarMovimiento(mov: Movimiento){
+        val cuentaActual = _cuenta.value
+
         val nuevoSaldo =
             if (mov.tipo == TipoMovimiento.INGRESO){
-                _saldo.value = _saldo.value + mov.monto
+                cuentaActual.saldo + mov.monto
+//                _saldo.value = _saldo.value + mov.monto
             } else {
-                _saldo.value = _saldo.value - mov.monto
-
+                cuentaActual.saldo - mov.monto
+//                _saldo.value = _saldo.value - mov.monto
             }
+
+        //actualizacion del saldo a la variable general _cuenta
+        _cuenta.value = cuentaActual.copy(saldo = nuevoSaldo)
 
         _movimientos.value = _movimientos.value + mov
     }
@@ -39,7 +51,7 @@ class MovimientoFuenteDatos {
     }
 
     fun obtenerSaldo(): Double {
-        return saldo.value
+        return cuenta.value.saldo
     }
 
     //U-Actualizar

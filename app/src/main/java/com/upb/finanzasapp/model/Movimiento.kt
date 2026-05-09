@@ -23,5 +23,12 @@ data class Movimiento(
     val monto: Double,
     val tipo: TipoMovimiento,
     val fecha: String,
-    val categoria: Categoria
+    val categoria: Categoria,
+    val cuentaId: String
+)
+
+data class Cuenta(
+    val id: String,
+    val nombre: String,
+    val saldo: Double
 )
