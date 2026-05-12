@@ -11,16 +11,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,18 +48,11 @@ import com.upb.finanzasapp.viewModel.MovimientoViewModel
 fun PantallaPrincipal(
     puenteDatos: MovimientoViewModel,
     modifier: Modifier = Modifier,
+    irAgregar: () -> Unit
 ) {
     //variables
     val movimientos by puenteDatos.movimientos.collectAsStateWithLifecycle()
-    val saldo by puenteDatos.saldo.collectAsStateWithLifecycle()
-
-    var descripcion by remember { mutableStateOf("") }
-    var monto by remember { mutableStateOf("") }
-
     val cuenta by puenteDatos.cuenta.collectAsStateWithLifecycle()
-
-    var expanded by remember { mutableStateOf(false) }
-    var categoriaSeleccionada by remember { mutableStateOf(Categoria.OTROS) }
 
     //TODO: filtrar por categoria
     var categoriaFiltro by remember { mutableStateOf<Categoria?>(null) }
@@ -64,181 +66,153 @@ fun PantallaPrincipal(
         movimientos
     }
 
-    //vista
-    Column(modifier = modifier.padding(16.dp)) {
-        Text(text = "💰Control de gastos", style = MaterialTheme.typography.headlineLarge)
 
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Cuenta: ${cuenta.nombre}",
-            style = MaterialTheme.typography.bodyLarge, color = Color.Gray
-        )
-        Text(
-            text = "Saldo: ${cuenta.saldo}",
-            style = MaterialTheme.typography.bodyLarge, color = Color.Gray
-        )
+    Scaffold(
 
-        Spacer(modifier = Modifier.height(16.dp))
+        topBar = {
 
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+            TopAppBar(
+                title = {
+                    Text("💰 Control de gastos")
+                }
+            )
+        },
+
+        floatingActionButton = {
+
+            FloatingActionButton(
+                onClick = irAgregar,
+                containerColor = Color(0xFF7EBDA9),
+                contentColor = Color.White
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Agregar"
+                )
+            }
+        }
+
+    ) { padding ->
+
+
+        //vista
+        Column(
+            modifier = modifier
+                .padding(padding)
+                .padding(16.dp)
         ) {
-            TextField(
-                value = categoriaSeleccionada.toString(),
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Categoria") },
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth()
+            Text(
+                text = "Cuenta: ${cuenta.nombre}",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.Gray
+            )
+            Text(
+                text = "Saldo: ${cuenta.saldo}",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.Gray
             )
 
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
             ) {
-                Categoria.entries.forEach { categoria ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(categoria.name)
-                        },
-                        onClick = {
-                            categoriaSeleccionada = categoria
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextField(
-            value = descripcion,
-            onValueChange = { descripcion = it },
-            label = { Text("Descripcion") },
-            modifier = Modifier.fillMaxWidth()
-
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextField(
-            value = monto,
-            onValueChange = { monto = it },
-            label = { Text("Monto") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(23.dp))
-
-        //fila
-        Row() {
-            Button(
-                modifier = Modifier.weight(1f),
-                onClick = {
-                    puenteDatos.agregarMovimiento(
-                        descripcion,
-                        monto,
-                        TipoMovimiento.INGRESO,
-                        categoriaSeleccionada
-                    )
-                    descripcion = ""
-                    monto = ""
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.DarkGray
-                )
-
-            ) {
-                Text("Ingreso")
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Button(
-                modifier = Modifier.weight(1f),
-                onClick = {
-                    puenteDatos.agregarMovimiento(
-                        descripcion,
-                        monto,
-                        TipoMovimiento.GASTO,
-                        categoriaSeleccionada
-                    )
-                    descripcion = ""
-                    monto = ""
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.DarkGray
-                )
-            ) {
-                Text("Gasto")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(23.dp))
-
-        Row(modifier= Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,) {
-            ExposedDropdownMenuBox(
-                expanded = expandedFiltro,
-                onExpandedChange = { expandedFiltro = !expandedFiltro }
-            ) {
-                OutlinedTextField(
-                    value = textoFiltro,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Filtrar por categoría") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expandedFiltro) },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(
+                ExposedDropdownMenuBox(
                     expanded = expandedFiltro,
-                    onDismissRequest = { expandedFiltro = false }
+                    onExpandedChange = { expandedFiltro = !expandedFiltro },
+                    modifier = Modifier.width(200.dp)
                 ) {
-                    DropdownMenuItem(
-                        text = {
-                            Text("Todas")
-                        },
-                        onClick = {
-                            categoriaFiltro = null
-                            expandedFiltro = false
-                        }
+                    OutlinedTextField(
+                        value = textoFiltro,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Filtrar por categoría") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expandedFiltro) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
                     )
 
-                    Categoria.entries.forEach { categoria ->
+                    ExposedDropdownMenu(
+                        expanded = expandedFiltro,
+                        onDismissRequest = { expandedFiltro = false }
+                    ) {
                         DropdownMenuItem(
                             text = {
-                                Text(categoria.name)
+                                Text("Todas")
                             },
                             onClick = {
-                                categoriaFiltro = categoria
+                                categoriaFiltro = null
                                 expandedFiltro = false
                             }
                         )
 
+                        Categoria.entries.forEach { categoria ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(categoria.name)
+                                },
+                                onClick = {
+                                    categoriaFiltro = categoria
+                                    expandedFiltro = false
+                                }
+                            )
+
+                        }
+                    }
+
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                "Movimientos",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+
+                items(movimientosFiltrados.size) { index ->
+
+                    val mov = movimientosFiltrados[index]
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF7EBDA9) // color del fondo del card
+                        )
+                    ) {
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+
+                            Column {
+
+                                Text(mov.descripcion, color = Color.White)
+
+                                Text(
+                                    mov.categoria.name,
+                                    color = Color.White
+                                )
+                            }
+
+                            Text("$${mov.monto}", color = Color.White)
+                        }
                     }
                 }
-
             }
         }
-
-        Spacer(modifier = Modifier.height(23.dp))
-
-
-        Text("Movimientos: ", style = MaterialTheme.typography.titleMedium)
-
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            items(movimientos.size) {
-                Text(
-                    "${movimientos[it].descripcion} - ${movimientos[it].monto} - categoria: ${movimientos[it].categoria}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-
     }
 }
